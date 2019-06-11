@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Genius BAD</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src="https://vuejs.org/js/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>{{ message }}</h1>
+        AD Username : <input v-model="username" /> <button @click="getUser">Changer</button>
+        <div class="result" v-if="toto">
+            Email : {{ toto.Mail }}<br>
+            Username : {{ toto.SAMAccountName }}<br><br>
+            Groupes AD :<br>
+            Page <button @click="page--"><</button> {{ page }} <button @click="page++">></button><br>
+            Page size <input v-model="pagesize" type="number"><br>
+            
+            <ul>
+                <li v-for="grp in currentPage" :key="grp">
+                    {{ grp }}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <a href="10.html">Suivant</a>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: 'Hello!',
+                toto: null,
+                page: 0,
+                username: 'thomas.sauvajon',
+                pagesize: 10
+            },
+            computed: {
+                currentPage() {
+                    return this.toto.MemberOf.slice(this.page * this.pagesize, (this.page + 1) * this.pagesize)
+                }
+            },
+            methods: {
+                async getUser() {
+                    const result = await axios.get(`https://srv-soft-dev.gerflorgroup.com/DRAMWS/AD/get?u=${this.username}&p=displayname;memberOf;mail`)
+                    this.toto = result.data.Result
+                    this.message = `Hello ${this.toto.Displayname}`
+                }
+            },
+            created () {
+                this.getUser()
+            }
+        })
+    </script>
+</body>
+</html>

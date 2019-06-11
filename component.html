@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Genius BAD</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src="https://vuejs.org/js/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/velocity/1.2.3/velocity.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>{{ message }}</h1>
+        AD Username : <input v-model="username" /> <button @click="getUser">Changer</button>
+        <p v-if="error" class="error">{{ error }}</p>
+        <div class="result" v-if="toto">
+            Email : {{ toto.Mail }}<br>
+            Username : {{ toto.SAMAccountName }}<br><br>
+            Groupes AD :<br>
+            Page <button @click="page--"><</button> {{ page }} <button @click="page++">></button><br>
+            Page size <input v-model="pagesize" type="number"><br>
+            Filter <input v-model="filter"><br>
+            <gerflor-list-transition>
+                <li v-for="grp in currentPage" :key="grp">
+                    {{ grp }}
+                </li>
+            </gerflor-list-transition>
+            <hr>
+            <gerflor-list-transition>
+                <li v-for="grp in currentPage.map(item => item.split('').reverse().join(''))" :key="grp">
+                    {{ grp }}
+                </li>
+            </gerflor-list-transition>
+            <hr>
+            <gerflor-list-transition>
+                <li v-for="grp in currentPage.map((item,i) => currentPage[currentPage.length-1-i])" :key="grp">
+                    {{ grp }}
+                </li>
+            </gerflor-list-transition>
+        </div>
+    </div>
+
+    <script>
+        Vue.component('gerflor-list-transition', {
+            functional: true,
+            render: function (createElement, context) {
+                var data = {
+                    props: {
+                        name: 'staggered-fade',
+                        tag: 'ul'
+                    },
+                    on: {
+                        beforeEnter (el) {
+                            el.style.opacity = 0
+                            el.style.height = 0
+                        },
+                        enter (el, done) {
+                            var delay = el.dataset.index * 150
+                            setTimeout(() => Velocity(el, { opacity: 1, height: '1.6em' }, { complete: done }), delay)
+                        },
+                        leave (el, done) {
+                            var delay = el.dataset.index * 150
+                            setTimeout(() => Velocity(el, { opacity: 0, height: 0 }, { complete: done }), delay)
+                        }
+                    }
+                }
+                return createElement('transition-group', data, context.children)
+            }
+        })
+        var app = new Vue({
+            el: '#app',
+            data: {
+                message: 'Hello!',
+                toto: null,
+                page: 0,
+                username: 'thomas.sauvajon',
+                pagesize: 3,
+                filter: '',
+                error: null
+            },
+            computed: {
+                currentPage() {
+                    return this.toto.MemberOf
+                        .filter(grp => this.filter.length < 2 || grp.toLowerCase().includes(this.filter.toLowerCase()))
+                        .slice(this.page * this.pagesize, (this.page + 1) * this.pagesize)
+                }
+            },
+            methods: {
+                async getUser() {
+                    this.error = null
+                    try {
+                        const result = await axios.get(`https://srv-soft-dev.gerflorgroup.com/DRAMWS/AD/get?u=${this.username}&p=displayname;memberOf;mail`)
+                        this.toto = result.data.Result
+                        this.message = `Hello ${this.toto.Displayname}`
+                    } catch (_) {
+                        this.error = `Je n'ai pas trouvé l'utilisateur ${this.username}`
+                        this.toto = null
+                    }
+                }
+            },
+            created () {
+                this.getUser()
+            }
+        })
+    </script>
+</body>
+</html>

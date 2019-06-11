@@ -1,0 +1,74 @@
+h1 {
+    font-size: 4em;
+    color: #002e60;
+}
+
+.result {
+    font-size: 2em;
+}
+
+.first-steps {
+    font-size: 4em;
+}
+
+.error {
+    color: red;
+    font-weight: 700;
+}
+
+.loading-overlay {
+  margin: auto;
+  height: 150px;
+}
+
+.logo-text, .logo-copyright, .logo-underline {
+  animation-delay: .6s;
+  animation-duration: 1.3s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.25, 0.8, 0.5, 1);
+}
+
+.logo-text, .logo-underline {
+  stroke-dasharray: 1750;
+  stroke-dashoffset: 1750;
+  animation-direction: reverse;
+  animation-name: drawLogoWhite;
+}
+
+.logo-copyright {
+  stroke-dasharray: 750;
+  stroke-dashoffset: 750;
+  animation-name: appear;
+  animation-delay: 2.5s;
+}
+
+.logo {
+  fill: #002e60;
+}
+
+/* Joué en reverse ! */
+@keyframes drawLogoWhite {
+  0% {
+    stroke: transparent;
+    fill: #002e60;
+  }
+  20% {
+    stroke-dashoffset: 0;
+    stroke: #002e6040;
+  }
+  100% {
+    stroke-dashoffset: 1750;
+    stroke: #002e6040;
+    fill: transparent;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
